@@ -1,5 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
+using RiptideNetworking;
+using RiptideNetworking.Utils;
 using UnityEngine;
 
 /// <summary>
@@ -7,7 +7,15 @@ using UnityEngine;
 /// </summary>
 public class NetworkManager : MonoBehaviour
 {
+    //Singleton
     public static NetworkManager instance;
+
+    public Client Client { get; private set; }
+
+    [SerializeField]
+    private string ip = "127.0.0.1";
+    [SerializeField]
+    private ushort port = 7777;
 
     private void Awake()
     {
@@ -26,12 +34,19 @@ public class NetworkManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
+
+        Client = new Client();
+        Client.Connect($"{ip}:{port}");
     }
 
-    // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
-        
+        Client.Tick();
+    }
+
+    private void OnApplicationQuit()
+    {
+        Client.Disconnect();
     }
 }
