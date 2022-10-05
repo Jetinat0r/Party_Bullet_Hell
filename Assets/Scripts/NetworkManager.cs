@@ -5,6 +5,18 @@ using UnityEngine;
 /// <summary>
 /// Network Manager for the CLIENT
 /// </summary>
+ 
+public enum ClientToServerId : ushort
+{
+    sendJoinInfo = 1,
+    sendPlayerPosRot = 2,
+}
+
+public enum ServerToClientId : ushort
+{
+    playerSpawnInfo = 1,
+}
+
 public class NetworkManager : MonoBehaviour
 {
     //Singleton
@@ -29,15 +41,30 @@ public class NetworkManager : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
         }
+
+
+        RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
+
+        Client = new Client();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
+        Application.targetFrameRate = 60;
+        Application.runInBackground = true;
+    }
 
-        Client = new Client();
-        Client.Connect($"{ip}:{port}");
+    public void JoinServer(string _userName, string _ip, string _port)
+    {
+        if(_ip == "" || _port == "")
+        {
+            Client.Connect($"{ip}:{port}");
+        }
+        else
+        {
+            Client.Connect($"{_ip}:{_port}");
+        }
     }
 
     private void FixedUpdate()
