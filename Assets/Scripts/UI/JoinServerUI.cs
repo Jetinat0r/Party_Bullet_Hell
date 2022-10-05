@@ -48,8 +48,9 @@ public class JoinServerUI : MonoBehaviour
     #region Server Events
     private void SendName()
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerId.sendJoinInfo);
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerId.joinInfo);
         message.AddString(userNameField.text);
+
         NetworkManager.instance.Client.Send(message);
     }
 

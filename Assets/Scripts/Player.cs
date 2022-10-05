@@ -8,8 +8,8 @@ public class Player : MonoBehaviour
     public static Dictionary<ushort, Player> PlayerList = new Dictionary<ushort, Player>();
     public static Dictionary<ushort, Color> PlayerColorMap = new Dictionary<ushort, Color>();
 
-    public ushort PlayerId { get; private set; }
-    public string PlayerUserName { get; private set; }
+    public ushort PlayerId { get; protected set; }
+    public string PlayerUserName { get; protected set; }
 
     private void Awake()
     {
@@ -27,13 +27,21 @@ public class Player : MonoBehaviour
         //SendPlayerPosRot();
     }
 
-    private void SendPlayerPosRot()
+    public void SetSpawnInfo(ushort id, string username)
+    {
+        PlayerId = id;
+        PlayerUserName = username;
+    }
+
+    #region Messages
+    protected void SendPlayerPosRot()
     {
         //TODO: Make it so only the local player sends this
-        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerId.sendPlayerPosRot);
+        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerId.playerPosRot);
         message.AddVector3(transform.position);
         message.AddQuaternion(transform.rotation);
 
         NetworkManager.instance.Client.Send(message);
     }
+    #endregion
 }

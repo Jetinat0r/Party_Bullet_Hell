@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RiptideNetworking;
+using System;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    public Player playerPrefab;
+    public Player localPlayerPrefab;
+    public Player remotePlayerPrefab;
 
     private void Awake()
     {
@@ -26,8 +28,11 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         NetworkManager.instance.Client.ClientDisconnected += RemovePlayer;
+        NetworkManager.instance.Client.Disconnected += DisconnectFromServer;
     }
 
+    #region Messages
+    #region Joining & Disconnecting
     //Will NOT be moved to the ClientConnected event, as I may not always want to send this kind of data
     [MessageHandler((ushort)ServerToClientId.playerSpawnInfo)]
     private static void SpawnPlayer(Message message)
@@ -35,7 +40,18 @@ public class GameManager : MonoBehaviour
         ushort fromClientId = message.GetUShort();
         string playerUsername = message.GetString();
 
-        Player player = Instantiate(GameManager.instance.playerPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+        Player player;
+        if(fromClientId == NetworkManager.instance.Client.Id)
+        {
+            //Spawn local Player prefab
+            player = Instantiate(GameManager.instance.localPlayerPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+
+        }
+        else
+        {
+            //Spawn remote Player prefab
+            player = Instantiate(GameManager.instance.remotePlayerPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+        }
         Player.PlayerList.Add(fromClientId, player);
         player.GetComponent<SpriteRenderer>().color = Player.PlayerColorMap[fromClientId];
 
@@ -52,4 +68,34 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"Removed client id {{{e.Id}}}");
     }
+
+    //Clears all gameplay elements from the screen
+    private static void DisconnectFromServer(object sender, EventArgs e)
+    {
+        //Destroy all players
+        foreach(ushort clientId in Player.PlayerList.Keys)
+        {
+            Destroy(Player.PlayerList[clientId].gameObject);
+        }
+        Player.PlayerList.Clear();
+
+    }
+    #endregion
+
+    #region Movement
+    [MessageHandler((ushort)ServerToClientId.playerPosRot)]
+    private static void SetPlayerPosRot(Message message)
+    {
+        ushort clientId = message.GetUShort();
+        Vector3 pos = message.GetVector3();
+        Quaternion rot = message.GetQuaternion();
+
+        if (Player.PlayerList.TryGetValue(clientId, out Player player))
+        {
+            //TODO: Move into player class
+            player.transform.SetPositionAndRotation(pos, rot);
+        }
+    }
+    #endregion
+#endregion
 }
