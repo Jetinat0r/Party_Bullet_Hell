@@ -53,7 +53,8 @@ public class GameManager : MonoBehaviour
             player = Instantiate(GameManager.instance.remotePlayerPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
         }
         Player.PlayerList.Add(fromClientId, player);
-        player.GetComponent<SpriteRenderer>().color = Player.PlayerColorMap[fromClientId];
+        player.SetSpawnInfo(fromClientId, playerUsername);
+        //player.GetComponent<SpriteRenderer>().color = Player.PlayerColorMap[fromClientId];
 
         Debug.Log($"Player \"{playerUsername}\" joined!");
     }
@@ -92,8 +93,7 @@ public class GameManager : MonoBehaviour
 
         if (Player.PlayerList.TryGetValue(clientId, out Player player))
         {
-            //TODO: Move into player class
-            player.transform.SetPositionAndRotation(pos, rot);
+            player.SetPosRot(pos, rot);
         }
     }
     #endregion

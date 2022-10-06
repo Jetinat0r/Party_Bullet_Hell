@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,14 +27,30 @@ public class JoinServerUI : MonoBehaviour
 
     public void JoinServer()
     {
-        if(userNameField.text == "")
+        if (userNameField.text == "")
         {
             //TODO: Tell player that they need a username, or send a default username
             return;
         }
 
-        CloseJoinMenu();
-        NetworkManager.instance.JoinServer(userNameField.text, serverIpField.text, serverPortField.text);
+        try
+        {
+            IPAddress[] addresses = Dns.GetHostAddresses(serverIpField.text);
+
+            if (addresses.Length == 0)
+            {
+                //TODO: Alert to invalid IP, should never run
+                return;
+            }
+
+            CloseJoinMenu();
+            NetworkManager.instance.JoinServer(userNameField.text, addresses[0].ToString(), serverPortField.text);
+        }
+        catch(Exception e)
+        {
+            //TODO: Alert client to invalid IP
+            Debug.LogError($"Invalid Host Name! Error:\n{e}");
+        }
     }
 
     private void CloseJoinMenu()
