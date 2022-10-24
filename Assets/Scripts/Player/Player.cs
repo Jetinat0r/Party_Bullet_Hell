@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using RiptideNetworking;
+using Riptide;
 using TMPro;
 
 public class Player : MonoBehaviour
@@ -58,7 +58,7 @@ public class Player : MonoBehaviour
     protected void SendPlayerPosRot()
     {
         //TODO: Make it so only the local player sends this
-        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerId.playerPosRot);
+        Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerId.playerPosRot);
         message.AddVector3(transform.position);
         message.AddQuaternion(playerPivot.transform.rotation);
 

@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using RiptideNetworking;
+using Riptide;
 
 public class JoinServerUI : MonoBehaviour
 {
@@ -65,7 +65,7 @@ public class JoinServerUI : MonoBehaviour
     #region Server Events
     private void SendName()
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerId.joinInfo);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerId.joinInfo);
         message.AddString(userNameField.text);
 
         NetworkManager.instance.Client.Send(message);
