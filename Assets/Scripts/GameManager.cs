@@ -39,6 +39,10 @@ public class GameManager : MonoBehaviour
     {
         ushort fromClientId = message.GetUShort();
         string playerUsername = message.GetString();
+        if(playerUsername == "")
+        {
+            playerUsername = $"Guest ({fromClientId})";
+        }
 
         Player player;
         if(fromClientId == NetworkManager.instance.Client.Id)
@@ -97,5 +101,15 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
-#endregion
+    [MessageHandler((ushort)ServerToClientId.playerShove)]
+    private static void MakePlayerShove(Message message)
+    {
+        ushort clientId = message.GetUShort();
+
+        Player.PlayerList[clientId].RemoteShove(message.GetVector3(), message.GetQuaternion());
+    }
+    #region Player Attacks
+
+    #endregion
+    #endregion
 }

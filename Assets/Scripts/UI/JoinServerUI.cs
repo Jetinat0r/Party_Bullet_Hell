@@ -27,11 +27,13 @@ public class JoinServerUI : MonoBehaviour
 
     public void JoinServer()
     {
+        /*
         if (userNameField.text == "")
         {
             //TODO: Tell player that they need a username, or send a default username
             return;
         }
+        */
 
         try
         {

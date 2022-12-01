@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class LocalPlayerMovement : MonoBehaviour
 {
+    [SerializeField]
+    private LocalPlayer player;
+
     public float movementSpeed = 5f;
     [SerializeField]
     private Rigidbody2D rb;
@@ -11,7 +14,11 @@ public class LocalPlayerMovement : MonoBehaviour
     [SerializeField]
     private GameObject playerPivot;
 
-    private Vector2 movementVector;
+    [SerializeField]
+    private float frictionCoefficient = 1f;
+
+    private Vector2 movementVector = Vector2.zero;
+    private Vector2 forceVector = Vector2.zero;
 
 
     void Update()
@@ -31,6 +38,20 @@ public class LocalPlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.MovePosition(rb.position + (movementVector.normalized * movementSpeed * Time.fixedDeltaTime));
+        //TODO: Check if this.magnitude is > 1, and if so: normalize and multipy again?
+        Vector2 appliedForceVector = Time.fixedDeltaTime * forceVector;
+        rb.MovePosition(rb.position +
+            (movementSpeed * Time.fixedDeltaTime * movementVector.normalized) +
+            (Time.fixedDeltaTime * forceVector));
+
+        if(forceVector != Vector2.zero)
+        {
+            forceVector -= frictionCoefficient * forceVector;
+        }
+    }
+
+    public void AddForce(Vector2 newForce)
+    {
+        forceVector += newForce;
     }
 }

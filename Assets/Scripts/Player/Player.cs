@@ -10,12 +10,22 @@ public class Player : MonoBehaviour
     public static Dictionary<ushort, Color> PlayerColorMap = new Dictionary<ushort, Color>();
 
     [SerializeField]
-    private GameObject playerPivot; //TODO: Come up w/ a better name
+    public GameObject playerPivot; //TODO: Come up w/ a better name
+
+    [SerializeField]
+    public GameObject handHolder;
+    [SerializeField]
+    private Animation shoveAnimation;
+    [SerializeField]
+    private GameObject shoveForceBox;
+
 
     [SerializeField]
     private TMP_Text nameplate;
     [SerializeField]
     private SpriteRenderer baseGraphics;
+    [SerializeField]
+    private SpriteRenderer[] handGraphics = new SpriteRenderer[2];
 
 
     public ushort PlayerId { get; protected set; }
@@ -32,18 +42,17 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
-    {
-        //SendPlayerPosRot();
-    }
-
     public void SetSpawnInfo(ushort id, string username)
     {
-        //TODO: Set color in here
         PlayerId = id;
-        PlayerUserName = username != "" ? username : $"Guest ({PlayerId})"; //TODO: Move to when the name is received
+        PlayerUserName = username;
         //Above line should actually be handled by server
         baseGraphics.color = PlayerColorMap[id];
+
+        foreach(SpriteRenderer sr in handGraphics)
+        {
+            sr.color = PlayerColorMap[id];
+        }
 
         nameplate.text = PlayerUserName;
     }
@@ -54,10 +63,23 @@ public class Player : MonoBehaviour
         playerPivot.transform.rotation = rot;
     }
 
+    //Plays the shove animation and creates a hostile shove force box
+    public void RemoteShove(Vector3 pos, Quaternion rot)
+    {
+        Destroy(Instantiate(shoveForceBox, pos, rot), 0.3f);
+
+        PlayShoveAnim();
+    }
+
+    public void PlayShoveAnim()
+    {
+        //shoveAnimation.Rewind();
+        shoveAnimation.Play();
+    }
+
     #region Messages
     protected void SendPlayerPosRot()
     {
-        //TODO: Make it so only the local player sends this
         Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerId.playerPosRot);
         message.AddVector3(transform.position);
         message.AddQuaternion(playerPivot.transform.rotation);

@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class LocalPlayer : Player
 {
+    [SerializeField]
+    public LocalPlayerMovement movement;
+    [SerializeField]
+    public LocalPlayerAttack attack;
+
     private void FixedUpdate()
     {
         SendPlayerPosRot();
